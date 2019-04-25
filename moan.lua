@@ -22,7 +22,7 @@
 -- SOFTWARE.
 --
 
-local moan = { _version = "0.1.0" }
+local moan = { _version = "0.1.1" }
 moan.__index = moan
 
 moan.scribbles = {}
@@ -37,7 +37,6 @@ scribble.__index = scribble
 
 function scribble.new(message, t)
 	local self = setmetatable({}, scribble)
-	print(message, t)
 	self.message = message
 	self.idx = 0
 	self.rate = t > 0 and 1 / t or 0
