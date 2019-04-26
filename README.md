@@ -40,8 +40,6 @@ Closes the current Scribble if it has been fully processed.
 #### moan.skip()
 Skips the current the Scribble allowing it to be passed using the `moan.pass()` function.
 
-#### moan.setFont(font)
-Sets the current font used by möan to `font`.
 
 ### Additional options
 
@@ -63,6 +61,9 @@ Sets the function `fn` to be called each frame the scribble updates.
 
 #### :oncomplete(fn)
 Sets the function `fn` to be called once the scribble has finished.
+
+#### :font(fnt)
+Sets the current Font object to `fnt`.
 
 
 ## License

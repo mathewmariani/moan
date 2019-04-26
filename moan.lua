@@ -22,15 +22,13 @@
 -- SOFTWARE.
 --
 
-local moan = { _version = "0.2.0" }
+local moan = { _version = "0.2.1" }
 moan.__index = moan
 
 moan.scribbles = {}
 moan.easing = function(p) return p end
-moan.font = nil
-moan.canvas = love.graphics.newCanvas(
-	love.graphics.getWidth(),
-	95)
+moan.text = love.graphics.newText(love.graphics.getFont())
+moan.canvas = love.graphics.newCanvas(love.graphics.getWidth(), 95)
 
 local scribble = {}
 scribble.__index = scribble
@@ -63,6 +61,15 @@ function scribble:delay(t)
 	return self
 end
 
+function scribble:font(font)
+	-- if type(t) ~= "number" then
+	-- 	error("bad delay time; expected a number")
+	-- end
+	moan.text:setFont(font)
+	return self
+end
+
+
 function scribble:skippable(b)
 	if type(t) ~= "boolean" then
 		error("bad skippable flag; expected a boolean")
@@ -71,18 +78,18 @@ function scribble:skippable(b)
 	return self
 end
 
-function scribble:onstart(func)
-	self._onstart = func
+function scribble:onstart(fn)
+	self._onstart = fn
 	return self
 end
 
-function scribble:onupdate(func)
-	self._onupdate = func
+function scribble:onupdate(fn)
+	self._onupdate = fn
 	return self
 end
 
-function scribble:oncomplete(func)
-	self._oncomplete = func
+function scribble:oncomplete(fn)
+	self._oncomplete = fn
 	return self
 end
 
@@ -129,7 +136,6 @@ function moan:draw()
 
 	moan.canvas:renderTo(function()
 		love.graphics.setDefaultFilter("nearest", "nearest")
-		love.graphics.setFont(moan.font)
 		love.graphics.clear(0.0, 0.0, 0.0, 0.0)
 
 		local t = self[1]
@@ -151,14 +157,17 @@ function moan:draw()
 
 		local w, h = moan.canvas:getDimensions()
 		local transform = love.math.newTransform(15, 10)
-		local limit = w - 25
+		local wrap = w - 25
 		local align = "left"
+
+		-- replace the contents of the Text object
+		moan.text:setf(text, wrap, align)
 
 		-- draw text box
 		love.graphics.setColor(0.0, 0.0, 0.0, 0.75)
 		love.graphics.rectangle("fill", 5, 5, w - 10, 85, 2)
 		love.graphics.setColor(1.0, 1.0, 1.0, 1.0)
-		love.graphics.printf(text, transform, limit, align)
+		love.graphics.draw(moan.text, transform)
 	end)
 
 	local w, h = love.graphics.getDimensions()
@@ -206,10 +215,6 @@ function moan:pass()
 	end
 end
 
-function moan:setFont(font)
-	moan.font = font
-end
-
 local api = {
 	say = function(...) return moan.say(moan.scribbles, ...) end,
 	remove = function(...) return moan.remove(moan.scribbles, ...) end,
@@ -217,7 +222,6 @@ local api = {
 	pass = function(...) return moan.pass(moan.scribbles, ...) end,
 	update = function(...) return moan.update(moan.scribbles, ...) end,
 	draw = function(...) return moan.draw(moan.scribbles, ...) end,
-	setFont = function(...) return moan.setFont(moan.scribbles, ...) end
 }
 
 setmetatable(api, moan)
