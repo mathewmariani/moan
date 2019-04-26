@@ -22,7 +22,7 @@
 -- SOFTWARE.
 --
 
-local moan = { _version = "0.1.1" }
+local moan = { _version = "0.2.0" }
 moan.__index = moan
 
 moan.scribbles = {}
@@ -42,6 +42,16 @@ function scribble.new(message, t)
 	self.rate = t > 0 and 1 / t or 0
 	self.progress = t > 0 and 0 or 1
 	self._delay = 0
+	self.length = 0
+	if type(message) == "table" then
+		for k, v in pairs(message) do
+			if type(v) == "string" then
+				self.length = self.length + #v
+			end
+		end
+	else
+		self.length = #message
+	end
 	return self
 end
 
@@ -54,9 +64,8 @@ function scribble:delay(t)
 end
 
 function scribble:skippable(b)
-	print(tostring(type(t)))
 	if type(t) ~= "boolean" then
-		error("bad skippable flag; expected a boolean ")
+		error("bad skippable flag; expected a boolean")
 	end
 	self.skippable = b
 	return self
@@ -91,7 +100,7 @@ function moan:update(dt)
 	t.progress = t.progress + t.rate * dt
 	local p = t.progress
 	local x = p >= 1 and 1 or moan.easing(p)
-	t.idx = math.floor(x * #t.message)
+	t.idx = math.floor(x * t.length)
 	if t._onupdate then t._onupdate() end
 	if p >= 1 then
 		if t._oncomplete then
@@ -104,10 +113,6 @@ end
 function moan:draw()
 	if #self <= 0 then return end
 
-	local t = self[1]
-	local text = string.sub(t.message, 1, t.idx)
-	local w, h = moan.canvas:getDimensions()
-
 	-- cache graphics state
 	local old = {
 		blend = love.graphics.getBlendMode(),
@@ -119,14 +124,32 @@ function moan:draw()
 		wireframe = love.graphics.isWireframe()
 	}
 
-	-- reset the graphics state
+	-- reset the current graphics state
 	love.graphics.reset()
 
 	moan.canvas:renderTo(function()
 		love.graphics.setDefaultFilter("nearest", "nearest")
 		love.graphics.setFont(moan.font)
 		love.graphics.clear(0.0, 0.0, 0.0, 0.0)
-		
+
+		local t = self[1]
+		local text = nil
+		if type(t.message) == "table" then
+			text = {}
+			for k, v in pairs(t.message) do
+				if type(v) == "string" then
+					local str = string.sub(v, 1, t.idx)
+					table.insert(text, str)
+					t.idx = t.idx - #str
+				else
+					table.insert(text, v)
+				end
+			end
+		else
+			text = string.sub(t.message, 1, t.idx)
+		end
+
+		local w, h = moan.canvas:getDimensions()
 		local transform = love.math.newTransform(15, 10)
 		local limit = w - 25
 		local align = "left"
@@ -188,12 +211,12 @@ function moan:setFont(font)
 end
 
 local api = {
-	say		= function(...) return moan.say(moan.scribbles, ...) end,
-	remove	= function(...) return moan.remove(moan.scribbles, ...) end,
-	skip	= function(...) return moan.skip(moan.scribbles, ...) end,
-	pass	= function(...) return moan.pass(moan.scribbles, ...) end,
-	update	= function(...) return moan.update(moan.scribbles, ...) end,
-	draw	= function(...) return moan.draw(moan.scribbles, ...) end,
+	say = function(...) return moan.say(moan.scribbles, ...) end,
+	remove = function(...) return moan.remove(moan.scribbles, ...) end,
+	skip = function(...) return moan.skip(moan.scribbles, ...) end,
+	pass = function(...) return moan.pass(moan.scribbles, ...) end,
+	update = function(...) return moan.update(moan.scribbles, ...) end,
+	draw = function(...) return moan.draw(moan.scribbles, ...) end,
 	setFont = function(...) return moan.setFont(moan.scribbles, ...) end
 }
 
