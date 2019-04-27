@@ -22,7 +22,7 @@
 -- SOFTWARE.
 --
 
-local moan = { _version = "0.2.1" }
+local moan = { _version = "0.2.2" }
 moan.__index = moan
 
 moan.scribbles = {}
@@ -61,17 +61,17 @@ function scribble:delay(t)
 	return self
 end
 
-function scribble:font(font)
-	-- if type(t) ~= "number" then
-	-- 	error("bad delay time; expected a number")
-	-- end
-	moan.text:setFont(font)
+function scribble:font(fnt)
+	if type(fnt) ~= "userdata" then
+		error("bad font; expected a userdata")
+	end
+	moan.text:setFont(fnt)
 	return self
 end
 
 
 function scribble:skippable(b)
-	if type(t) ~= "boolean" then
+	if type(b) ~= "boolean" then
 		error("bad skippable flag; expected a boolean")
 	end
 	self.skippable = b

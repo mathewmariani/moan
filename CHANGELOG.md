@@ -1,5 +1,12 @@
 # Changelog
 
+
+### 0.2.2
+
+- Fixed `:font(fnt)` to check for unexpected inputs.
+- Added `:skippable(b)` as a chainable function to set if a scribble can be skipped.
+
+
 ### 0.2.1
 
 - Moved to using drawable Text objects.

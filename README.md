@@ -53,6 +53,9 @@ moan.say("Hello, World!", 5):delay(1)
 The amount of time möan should wait before starting a scribble; `time` should be
 a number of seconds.
 
+#### :skippable(b)
+Sets whether the current scribble can be skipped by `moan.skip()`.
+
 #### :onstart(fn)
 Sets the function `fn` to be called when the scribble starts.
 
